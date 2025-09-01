@@ -1,0 +1,23 @@
+﻿<MudDialog Class="@DialogHeaderClass">
+    <TitleContent>
+        @DialogTitle
+    </TitleContent>
+    <DialogContent>
+        <MudItem xs="12" sm="12" md="12" lg="12" Class="px-6 py-4 text-lg">
+            <MudAlert Severity="@AlertSeverity">@DialogText</MudAlert>
+        </MudItem>
+    </DialogContent>
+    <DialogActions>
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Text" OnClick="Close">Cancel</MudButton>
+            <MudButton Color="@OkButtonColor" Variant="Variant.Filled" OnClick="Confirm">OK</MudButton>
+        </MudStack>
+    </DialogActions>
+</MudDialog>
+@code {
+
+    [CascadingParameter]
+    public required IMudDialogInstance MudDialog { get; set; }
+
+    private void Close() => MudDialog.Cancel();
+}

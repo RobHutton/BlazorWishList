@@ -1,0 +1,210 @@
+﻿@rendermode InteractiveServer
+@page "/Account/Login2"
+
+@* @using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using BlazorWishList.Domain.Entities
+@using System.Diagnostics *@
+
+@* @inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager *@
+
+<PageTitle>Log In</PageTitle>
+
+<MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center" Class="mt-12">
+    <MudItem xs="12" sm="8" md="5" lg="4">
+        <MudCard Elevation="3" Class="pa-6" Style="background-color:rgb(205, 233, 219);">
+            <MudCardContent>
+                <StatusMessage Message="@errorMessage" />
+                @* <EditForm EditContext="@editContext" OnValidSubmit="LoginUser" FormName="login"> *@
+                    @* <DataAnnotationsValidator /> *@
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+                        <MudAvatar Size="Size.Large" Color="Color.Secondary"><MudIcon Icon="@Icons.Material.Filled.LockPerson" Size="Size.Large" /></MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.h5" Color="Color.Primary">Family WishList</MudText>
+                            <MudText Class="secondary-header">Sign in to your account.</MudText>
+                        </MudStack>
+                    </MudStack>
+                    <MudDivider Class="form-section-divider mb-8" />
+                    <MudStack Spacing="2">
+                        <MudTextField @bind-Value="LoginInfo.Email" 
+                                        Label="Email" 
+                                        Variant="Variant.Outlined" 
+                                        ShrinkLabel="true"
+                                        Required="true" 
+                                        FullWidth="true" 
+                                        InputType="InputType.Email"
+                                        Error="@IsValidationError("Email")"
+                                        ErrorText="@ValidationErrorMessage("Email")" />
+                        <MudTextField @bind-Value="LoginInfo.Password"
+                                        ShrinkLabel="true"
+                                        Label="Password" 
+                                        Variant="Variant.Outlined" 
+                                        Required="true" 
+                                        FullWidth="true" 
+                                        InputType="InputType.Password"
+                                        Error="@IsValidationError("Password")"
+                                        ErrorText="@ValidationErrorMessage("Password")" />
+                        <MudButton StartIcon="@Icons.Material.Filled.Login"
+                                        OnClick="LoginUser"
+                                        Variant="Variant.Filled"
+                                        Color="Color.Primary"
+                                        Class="mt-8 primary"
+                                        FullWidth="true">
+                            Sign In
+                        </MudButton>
+                    </MudStack>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@* @code {
+    // private string? errorMessage;
+
+    // [CascadingParameter]
+    // private HttpContext HttpContext { get; set; } = default!;
+
+    // private InputModel Input { get; set; } = new();
+    // private EditContext? editContext;
+
+    // [SupplyParameterFromQuery]
+    // private string? ReturnUrl { get; set; } = "/";
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     // Clear the existing external cookie to ensure a clean login process
+    //     if (HttpMethods.IsGet(HttpContext.Request.Method))
+    //     {
+    //         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+    //     }
+
+    //     editContext = new EditContext(Input);
+    // }
+
+    // public async Task LoginUser()
+    // {
+    //     if (!editContext.Validate())
+    //     {
+    //         return;
+    //     }
+
+    //     // This doesn't count login failures towards account lockout
+    //     // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+    //     var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, false, lockoutOnFailure: false);
+    //     Console.WriteLine("SignInManager", result.Succeeded);
+    //     if (result.Succeeded)
+    //     {
+    //         Logger.LogInformation("User logged in.");
+    //         RedirectManager.RedirectTo(ReturnUrl);
+    //     }
+    //     else if (result.RequiresTwoFactor)
+    //     {
+    //         RedirectManager.RedirectTo(
+    //             "Account/LoginWith2fa",
+    //             new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+    //     }
+    //     else if (result.IsLockedOut)
+    //     {
+    //         Logger.LogWarning("User account locked out.");
+    //         RedirectManager.RedirectTo("Account/Lockout");
+    //     }
+    //     else
+    //     {
+    //         errorMessage = "Error: Invalid login attempt.";
+    //     }
+    // }
+
+    // private sealed class InputModel
+    // {
+    //     [Required(ErrorMessage = "Email is required")]
+    //     [EmailAddress]
+    //     public string Email { get; set; } = "";
+
+    //     [Required(ErrorMessage = "Password is required")]
+    //     [DataType(DataType.Password)]
+    //     public string Password { get; set; } = "";
+
+    //     [Display(Name = "Remember me?")]
+    //     public bool RememberMe { get; set; }
+    // }
+} *@
+
+<style>
+    .MainLayout .mud-appbar {
+        display: none !important;
+    }
+
+    /* Reset native checkbox appearance */
+    input.form-check-input[type="checkbox"] {
+        -webkit-appearance: none; /* For WebKit browsers */
+        -moz-appearance: none; /* For Firefox */
+        appearance: none; /* For other modern browsers */
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 2px solid rgb(89, 74, 226); /* Purple */
+        background-color: white; /* White background */
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease; /* Smooth transition for background */
+    }
+
+        /* Style the checkbox when checked */
+        input.form-check-input[type="checkbox"]:checked {
+            background-color: rgb(89, 74, 226); /* Purple background when checked */
+            border-color: rgb(89, 74, 226); /* Purple border when checked */
+        }
+
+        /* Create the custom checkmark */
+        input.form-check-input[type="checkbox"]::after {
+            content: "";
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.3s ease; /* Smooth transition for visibility */
+        }
+
+        /* Show the custom checkmark when checked */
+        input.form-check-input[type="checkbox"]:checked::after {
+            opacity: .5; /* Make the checkmark visible when checked */
+        }
+
+
+
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+        font-size: 18px !important;
+        padding: 12px 12px 12px 12px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 100%;
+    }
+
+    div.mud-grid {
+        margin: 12px;
+        /* margin-top: 8px; */
+    }
+
+    .mud-input-slot {
+        font-size: 18px !important;
+        margin-bottom: 8px;
+    }
+
+    .mud-button-root {
+        font-size: 18px !important;
+        padding: 8px 12px 8px 12px;
+    }
+
+</style>

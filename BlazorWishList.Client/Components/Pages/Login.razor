@@ -1,0 +1,203 @@
+﻿@page "/Login"
+
+@using System.ComponentModel.DataAnnotations
+@using BlazorWishList.Client.Components.Account
+@using BlazorWishList.Client.Components.Account.Shared
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using BlazorWishList.Domain.Entities
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Log in</PageTitle>
+
+<div class="login-container">
+    <div class="row">
+    <div class="col-lg-12">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <!-- Avatar -->
+                <div style="width: 64px; height: 64px; border-radius: 50%; background-color: rgb(255, 64, 129); display: flex; align-items: center; justify-content: center;">
+                    <span style="color: #fff; font-size: 34px;">🔒</span>
+                </div>
+
+                <!-- Text stack -->
+                <div style="display: flex; flex-direction: column; gap: 0;">
+                    <span style="font-size: 24px; color: rgb(31, 94, 58); font-weight: 600;">Family WishList</span>
+                    <span style="font-size: 16px; color: rgb(99, 99, 99);">Sign in to your account.</span>
+                </div>
+            </div>
+            <hr  class="my-8" style="border: 2px solid rgb(46, 139, 87); width: 100%;" />
+
+        <section>
+            <StatusMessage Message="@errorMessage" />
+            <EditForm Model="Input" OnValidSubmit="LoginUser" FormName="login">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+                    <div class="form-group mb-8">
+                        <label for="Input.Email" class="form-label">Email</label>
+                        <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control"
+                                   autocomplete="username" aria-required="true" placeholder=" " />
+                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    </div>
+
+                    <div class="form-group mb-8">
+                        <label for="Input.Password" class="form-label">Password</label>
+                        <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control"
+                                   autocomplete="current-password" aria-required="true" placeholder=" " />
+                        <ValidationMessage For="() => Input.Password" class="text-danger" />
+                    </div>
+
+@*                 <div class="checkbox mb-3">
+                    <label class="form-label">
+                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
+                        Remember me
+                    </label>
+                </div> *@
+                <div>
+                        <button type="submit" class="w-100 btn btn-lg section-update">
+                            Log in
+                        </button>
+                </div>
+@*                 <div>
+                    <p>
+                        <a href="Account/ForgotPassword">Forgot your password?</a>
+                    </p>
+                    <p>
+                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
+                    </p>
+                    <p>
+                        <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
+                    </p>
+                </div> *@
+            </EditForm>
+        </section>
+    </div>
+@*     <div class="col-lg-4 col-lg-offset-2">
+        <section>
+            <h3>Use another service to log in.</h3>
+            <hr />
+            <ExternalLoginPicker />
+        </section>
+    </div> *@
+</div>
+</div>
+
+@code {
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("User logged in.");
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+                "Account/LoginWith2fa",
+                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogWarning("User account locked out.");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: Invalid login attempt.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
+    }
+}
+
+<style>
+    div.login-container {
+        margin-top:20px;
+        background-color: rgb(205, 233, 219);
+        width:600px;
+        border-radius:8px;
+        margin-left: auto;
+        margin-right:auto;
+        padding: 20px;
+    }
+
+    .form-floating label {
+        position: absolute;
+        top: -5px !important;
+        left: 0.75rem;
+        height: 1.5rem;
+        padding: 0 0.25rem;
+        color: #6c757d;
+        pointer-events: none;
+        transition: all 0.1s ease-in-out;
+        background-color: transparent; /* optional, to cover input text */
+    }
+
+    .btn-dark-green {
+        background-color: rgb(46, 139, 87); /* main dark green */
+        color: white;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-dark-green:hover {
+            color: white;
+            background-color: rgb(36, 109, 68); /* slightly darker on hover */
+        }
+
+    .form-control {
+        background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5rem 0.75rem; /* standard padding */
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6c757d;
+        margin-bottom: 0.25rem; /* small space above input */
+    }
+
+</style>

@@ -1,0 +1,35 @@
+﻿@rendermode InteractiveServer
+@inject ISnackbar Snackbar
+@inject IUserContextService UserContext
+@inject NavigationManager Navigation
+
+<MudAppBar Elevation="1" class="mb-5" Color="Color.Dark" Fixed=true>
+    <MudToolBar Style="width:100%;">
+        <MudText Typo="Typo.h5" Class="header-title ml-3">Family Wish List</MudText>
+        <MudSpacer />
+        <MudMenu>
+            <ActivatorContent>
+                <MudAvatar>
+                    <MudImage Src="@UserContext.UserPhoto" Alt="@UserContext.UserName" />
+                </MudAvatar>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Disabled="true">@UserContext.UserName</MudMenuItem>
+                <MudDivider />
+                <MudMenuItem OnClick="@(() => Navigation.NavigateTo("/LogOut", forceLoad: true))">
+                    <MudIcon Icon="@Icons.Material.Filled.ExitToApp" Class="mr-2" /> Sign Out
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </MudToolBar>
+</MudAppBar>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (!UserContext.IsAuthenticated)
+        {
+            await UserContext.InitializeAsync();
+        }
+    }
+}
+

@@ -1,0 +1,148 @@
+﻿@rendermode InteractiveServer
+
+@page "/Wish"
+@page "/Wish/{Id:int}"
+    <MudCard>
+        <MudCardHeader>
+            <MudStack Spacing="8">
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Info"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.ArrowBack"
+                           OnClick="Back">@ReferrerTitle</MudButton>
+            </MudStack>
+        </MudCardHeader>
+        <MudCardActions>
+        </MudCardActions>
+        <MudCardContent Style="max-width:800px;">
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h5" Class="mb-4">@PageTitle</MudText>
+                @if (IsSaved)
+                {
+                    <div class="fade-alert @(IsFading ? "hide" : "")">
+                        <MudAlert Class="mb-4" Severity="Severity.Success" Style="font-size:14px;max-width: 250px;">
+                            Changes Saved
+                        </MudAlert>
+                    </div>
+                }
+                @if (UnsavedChanges)
+                {
+                    <MudAlert Class="mb-4" Severity="Severity.Warning" style="font-size:14px;max-width: 250px;">
+                        Unsaved Changes
+                    </MudAlert>
+                }
+            </MudStack>
+            <MudAlert Variant="Variant.Filled" Icon="@Icons.Material.Filled.Info" Severity="Severity.Normal" Class="page-instructions mb-4">
+                <ul class="p-0 mb-0" style="margin-left: 1rem; list-style-type: disc;">
+                    <li>Fill in the required merchant, description, item link, category and price range..</li>
+                    <li>Paste in purchase link and test by clicking the icon to open link in a new tab.</li>
+                    <li>If appropriate, also be sure to select size and color.</li>
+                    <li>Click <b>Submit Changes</b> to save your item. Unsaved changes will be highlighted above.</li>
+                </ul>
+            </MudAlert>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudStack Spacing="2">
+                    <!-- Merchant -->
+                    <MudTextField Label="Merchant Name"
+                                  Variant="Variant.Outlined"
+                                  Required="true"
+                                  ShrinkLabel="true"
+                                  @bind-Value="MyWish.Merchant" />
+
+                    <!-- Description -->
+                    <MudTextField Label="Item Description"
+                                  Variant="Variant.Outlined"
+                                  Required="true"
+                                  ShrinkLabel="true"
+                                  @bind-Value="MyWish.Description" />
+
+                    <!-- Website Link -->
+                    <MudTextField T="string"
+                                  Label="Item Purchase Link"
+                                  Variant="Variant.Outlined"
+                                  @bind-Value="MyWish.Url"
+                                  Placeholder="Paste your link here"
+                                  Adornment="Adornment.End"
+                                  AdornmentIcon="@Icons.Material.Filled.OpenInNew"
+                                  OnAdornmentClick="OpenLink"
+                                  Immediate="true"
+                                  ShrinkLabel="true"
+                                  FullWidth="true" />
+
+                    <!-- First row of dropdowns: Category + Price Range -->
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="MyWish.Category"
+                                       Required="true"
+                                       ShrinkLabel="true"
+                                       Variant="Variant.Outlined"
+                                       Label="Category">
+                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
+                                @foreach (var option in Options.WishlistCategories)
+                                {
+                                    <MudSelectItem Value="@option">@option</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="MyWish.PriceRange"
+                                       Required="true"
+                                       ShrinkLabel="true"
+                                       Variant="Variant.Outlined"
+                                       Label="Price Range">
+                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
+                                @foreach (var option in Options.PriceRanges)
+                                {
+                                    <MudSelectItem Value="@option.Description">@option.Description</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                    </MudGrid>
+
+                    <!-- Second row of dropdowns: Size + Color -->
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="MyWish.Size"
+                                       ShrinkLabel="true"
+                                       Variant="Variant.Outlined"
+                                       Label="Size">
+                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
+                                @foreach (var option in Options.Sizes)
+                                {
+                                    <MudSelectItem Value="@option">@option</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="MyWish.Color"
+                                       ShrinkLabel="true"
+                                       Variant="Variant.Outlined"
+                                       Label="Color">
+                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
+                                @foreach (var option in Options.Colors)
+                                {
+                                    <MudSelectItem Value="@option">@option</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                    </MudGrid>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+
+        <MudItem class="my-4" xs="12" md="12" sm="12">
+                <MudStack Row=true AlignItems="AlignItems.Center" Spacing="2">
+                    <MudButton OnClick="() => OnSaveAsync(Id, MyWish)"
+                                Variant="Variant.Filled"
+                                StartIcon="@Icons.Material.Filled.Save"
+                                Disabled="@(IsLoading || IsReadOnly || !UnsavedChanges)"
+                                Class="section-update"
+                                Style="width:100%;height:50px;"
+                                Color="Color.Primary">
+                        Submit Changes
+                    </MudButton>
+                </MudStack>
+            </MudItem>
+        </MudCardContent>
+    </MudCard>

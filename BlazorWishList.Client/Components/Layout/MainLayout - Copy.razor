@@ -1,0 +1,57 @@
+﻿@inherits LayoutComponentBase
+@* Required *@
+<MudThemeProvider Theme="@WishListTheme" />
+<MudPopoverProvider />
+@* Needed for dialogs *@
+<MudDialogProvider />
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+<MudLayout Class="MainLayout">
+    <AppBar />
+    <MudContainer MaxWidth="MaxWidth.False" Style="background-color: black;" Class="w-100 h-100 mr-0 ml-0 pr-0 pl-0">
+        <MudMainContent Class="w-100 h-100 mr-0 ml-0 pr-0 pl-0" Style="flex: 1; display: flex; flex-direction: column;">
+            @Body
+        </MudMainContent>
+    </MudContainer>
+</MudLayout>
+<style>
+    .MainLayout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* allow the page to grow beyond viewport if content is taller */
+    }
+
+        .MainLayout .mud-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto; /* allow it to grow and fill space */
+            overflow: visible; /* allow scroll if content exceeds container */
+        }
+
+        .MainLayout .mud-main-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            overflow: visible; /* or overflow-y: auto if you want scrollbars */
+        }
+
+
+</style>
+
+@code {
+    MudTheme WishListTheme = new MudTheme()
+        {
+            Typography = new Typography()
+            {
+                Default = new DefaultTypography()
+                {
+                    FontFamily = new[] { "Roboto", "Helvetica", "Arial", "sans-serif" },
+                    FontSize = "1.25rem",
+                    FontWeight = "500",
+                    LineHeight = "1.6",
+                    LetterSpacing = ".0075em"
+                }
+            }
+        };
+}

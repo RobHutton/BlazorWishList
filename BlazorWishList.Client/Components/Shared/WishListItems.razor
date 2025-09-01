@@ -1,0 +1,205 @@
+﻿@inject HttpClient httpClient
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">@errorMessage</MudAlert>
+}
+<MudTable T="WishListResponse" 
+            ServerData="ServerReload"
+            Class="custom-grid" 
+            Dense="true" 
+            Elevation="0" 
+            Bordered="true" 
+            Striped="true" 
+            Loading="@isLoading" 
+            Hover="true" 
+            Breakpoint="Breakpoint.Sm" 
+            @ref="tableRef">
+    <ToolBarContent>
+        @if (CurrentUser.Id == WisherId)
+        {
+            <div class="switch-wrapper mt-2" style="width:200px;height:40px !important;background-color:transparent;">
+                <MudSwitch Value="IsActive"
+                           T="bool"
+                           ValueChanged="OnActiveChanged"
+                           Class="@activeCss"
+                           Color="@activeColor" />
+                <label style="font-size:14px;background-color:transparent !important;">@activeText</label>
+            </div>
+        }
+        else
+        {
+            <div class="switch-wrapper mt-2" style="width:225px;height:40px !important;background-color:transparent;">
+                <MudSwitch Value="IsUnpurchased"
+                           T="bool"
+                           ValueChanged="OnPurchaseChanged"
+                           Class="@purchaseCss"
+                           Color="@purchaseColor" />
+                <label style="font-size:14px;background-color:transparent !important;">@purchasedText</label>
+            </div>
+        }
+        <MudButton OnClick="() => OnAdd()"
+                   Class="ml-8"
+                   Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.AddCircle"
+                   Color="Color.Success">
+            Add New
+        </MudButton>
+        <MudSpacer/>
+        <MudTextField T="string"
+                        ValueChanged="@(s=>OnSearch(s))"
+                        DebounceInterval="400"
+                        Clearable="true"
+                        ShrinkLabel="true"
+                        Label="Search"
+                        Variant="Variant.Outlined"
+                        Adornment="Adornment.Start"
+                        AdornmentIcon="@Icons.Material.Filled.Search"
+                        IconSize="Size.Medium"
+                        Class="search" />
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Action</MudTh>
+        <MudTh><MudTableSortLabel SortLabel="PriceRange" T="WishListResponse">Price Range</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Category" T="WishListResponse">Category</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Merchant" T="WishListResponse">Merchant</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Description" T="WishListResponse">Description</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Size" T="WishListResponse">Size</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="Color" T="WishListResponse">Color</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudStack Row="true" Spacing="2" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                @* Edit button: only if current user is the wisher *@
+                @if (CurrentUser.Id == context.WisherId)
+                {
+                    <MudTooltip Text="Edit">
+                        <MudFab Class="mud-fab-xs"
+                                @onclick="() => OnEdit(context)"
+                                Color="Color.Info"
+                                Size="Size.Small"
+                                StartIcon="@Icons.Material.Filled.Edit" />
+                    </MudTooltip>
+                }
+
+                @* Deactivate / Reactivate button: only if current user is the wisher *@
+                @if (CurrentUser.Id == context.WisherId)
+                {
+                    @if (!context.IsDeleted)
+                    {
+                        <MudTooltip Text="Deactivate">
+                            <MudFab Class="mud-fab-xs"
+                                    @onclick="() => OnDelete(context)"
+                                    Color="Color.Error"
+                                    Size="Size.Small"
+                                    StartIcon="@Icons.Material.Filled.Delete" />
+                        </MudTooltip>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="Reactivate">
+                            <MudFab Class="mud-fab-xs"
+                                    @onclick="() => OnReactivate(context)"
+                                    Color="Color.Success"
+                                    Size="Size.Small"
+                                    StartIcon="@Icons.Material.Filled.Restore" />
+                        </MudTooltip>
+                    }
+                }
+
+                @* Purchase / Unpurchase button: only if current user is not the wisher or is the purchaser *@
+                @if (CurrentUser.Id != context.WisherId)
+                {
+                    @if (context.IsPurchased)
+                    {
+                        if (CurrentUser.Id == context.PurchaserId)
+                        {
+                            <MudTooltip Text="Mark as Unpurchased">
+                                <MudFab Class="mud-fab-xs"
+                                        @onclick="() => OnUnpurchase(context)"
+                                        Color="Color.Warning"
+                                        Size="Size.Small"
+                                        StartIcon="@Icons.Material.Filled.RemoveShoppingCart" />
+                            </MudTooltip>
+                        }
+                    }
+                    else if (!context.IsDeleted)
+                    {
+                        <MudTooltip Text="Mark as Purchased">
+                            <MudFab Class="mud-fab-xs"
+                                    @onclick="() => OnPurchase(context)"
+                                    Color="Color.Success"
+                                    Size="Size.Small"
+                                    Disabled="context.IsPurchased"
+                                    StartIcon="@Icons.Material.Filled.AttachMoney" />
+                        </MudTooltip>
+                    }
+                }
+            </MudStack>
+        </MudTd>
+        <MudTd DataLabel="PriceRange">@context.PriceRange</MudTd>
+        <MudTd DataLabel="Category">@context.Category</MudTd>
+        <MudTd DataLabel="Merchant">@context.Merchant</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+        <MudTd DataLabel="Size">@context.Size</MudTd>
+        <MudTd DataLabel="Color">@context.Color</MudTd>
+    </RowTemplate>
+@*     <ChildRowContent>
+            <MudTr>
+                <td colspan="6" class="grid-drilldown">
+                    <MudCard Class="configuration-section" Elevation="25">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.body1"><b>@(L["CustomerNameLocations", context.Name])</b></MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <LocationGrid
+                                CustomerId="@context.Id"
+                                ShowDrilldown="false"
+                                ShowTitle="false"
+                                ShowCustomerFilter="false"
+                                Referrer="Customers"
+                                ShowCustomer="false"/>
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+    </ChildRowContent> *@
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudText Class="ml-4">Total Items: @totalItems</MudText>
+            <MudTablePager />
+        </MudStack>
+    </PagerContent>
+</MudTable>
+
+@* <MudTable Items="@WishListData" Dense="false" Hover="true" Bordered="true" Striped="true" Loading="@IsLoading" LoadingProgressColor="Color.Info">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Wishlist Items</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Price Range</MudTh>
+        <MudTh>Category</MudTh>
+        <MudTh>Merchant</MudTh>
+        <MudTh>Item Description</MudTh>
+        <MudTh>Size</MudTh>
+        <MudTh>Color</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="PriceRange">@context.PriceRange</MudTd>
+        <MudTd DataLabel="Category">@context.Category</MudTd>
+        <MudTd DataLabel="Merchant">@context.Merchant</MudTd>
+        <MudTd DataLabel="Name">@context.Description</MudTd>
+        <MudTd DataLabel="Size">@context.Size</MudTd>
+        <MudTd DataLabel="Color">@context.Color</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable> *@

@@ -1,0 +1,31 @@
+﻿@using BlazorWishList.Client.Components.Account.Shared
+@using MudBlazor
+@rendermode InteractiveServer
+
+<CascadingAuthenticationState>
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    @if (!context.User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Error">You are not authorized to access this resource.</MudAlert>
+                    }
+                </NotAuthorized>
+                <Authorizing>
+                    <MudAlert Severity="Severity.Info">Authenticating...</MudAlert>
+                </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+            <LayoutView Layout="@typeof(Layout.MainLayout)">
+            <MudAlert Severity="Severity.Error">Sorry, there is nothing at this address.</MudAlert>
+        </LayoutView>
+    </NotFound>
+</Router>
+</CascadingAuthenticationState>

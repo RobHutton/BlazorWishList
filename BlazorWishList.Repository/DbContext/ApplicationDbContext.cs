@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlazorWishList.Data.DbContext;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>  // Inherit from IdentityDbContext for IdentityUser
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
 
     // DbSets for the entities you want to manage in the database
     public DbSet<WishListItem> WishListItems { get; set; }
@@ -17,24 +13,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>  // Inher
     // Override OnModelCreating to configure relationships, constraints, etc.
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);  // Call the base method to configure Identity
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<WishListItem>()
-                .HasIndex(t => new { t.IsDeleted, t.RecipientId })
-                .HasDatabaseName("IX_WishListItem_IsDeleted_RecipientId");
+            .HasOne(w => w.Wisher)
+            .WithMany(u => u.WishListItems)
+            .HasForeignKey(w => w.WisherId)
+            .OnDelete(DeleteBehavior.Restrict); // or Cascade/SetNull as needed
 
-        // Configure the relationship between WishListItem and ApplicationUser
         modelBuilder.Entity<WishListItem>()
-            .HasOne(w => w.Recipient)  // One WishListItem has one Recipient
-            .WithMany()  // One ApplicationUser can have many WishListItems
-            .HasForeignKey(w => w.RecipientId)  // The foreign key for Recipient
-            .IsRequired();  // Ensure that the Recipient is always set
+            .HasOne(w => w.Purchaser)
+            .WithMany()
+            .HasForeignKey(w => w.PurchaserId)
+            .OnDelete(DeleteBehavior.SetNull);
 
-        // Configure the relationship for the Gifter (optional)
         modelBuilder.Entity<WishListItem>()
-            .HasOne(w => w.Gifter)  // One WishListItem has one Gifter
-            .WithMany()  // One ApplicationUser can have many Gifted items
-            .HasForeignKey(w => w.GifterId)  // The foreign key for Gifter
-            .OnDelete(DeleteBehavior.SetNull);  // Optional: Set to null if Gifter is deleted
+                .HasIndex(t => new { t.IsDeleted, t.WisherId, t.IsPurchased, t.PurchaserId })
+                .HasDatabaseName("IX_WishListItem");
     }
 }
 

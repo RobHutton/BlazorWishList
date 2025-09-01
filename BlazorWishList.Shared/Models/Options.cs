@@ -1,6 +1,6 @@
 ﻿namespace BlazorWishList.Domain.Models;
 
-public class Option
+public class Options
 {
     public static readonly string[] Sizes = { "SM", "MD", "LG", "XL", "2XL", "3XL" };
     public static readonly string[] Colors =
@@ -11,10 +11,12 @@ public class Option
         "Brown",
         "Gray",
         "Green",
+        "Multi",
         "Navy",
         "Orange",
         "Pink",
         "Purple",
+        "Rainbow",
         "Red",
         "Teal",
         "White",
@@ -23,28 +25,40 @@ public class Option
     public static readonly (string Description, int Bottom, int Top)[] PriceRanges =
     {
         ("Less than 20", 0, 20),
-        ("20 - 50", 20, 50),
-        ("50 - 100", 50, 100),
-        ("100 - 200", 100, 200),
-        ("Over 200", 200, int.MaxValue) // 'int.MaxValue' to represent a value greater than 200
+        ("20-40", 20, 40),
+        ("40-60", 40, 60),
+        ("60-80", 60, 80),
+        ("80-100", 80, 100),
+        ("100-150", 100, 150),
+        ("150-200", 150, 200),
+        ("200+", 200, int.MaxValue) // 'int.MaxValue' to represent a value greater than 200
     };
     public static readonly string[] WishlistCategories =
     {
+        "Artwork",
+        "Athletic",
         "Automotive",
         "Art & Crafts",
         "Beauty & Personal Care",
         "Books",
         "Clothing",
-        "Electronics",
+        "Crafts & DIY",
+        "Electronics & Accessories",
         "Furniture",
         "Grocery",
         "Health & Wellness",
-        "Home & Kitchen",
+        "Home Decor & Lighting",
         "Jewelry",
+        "Kitchen & Dining",
         "Music",
         "Office Supplies",
+        "Perfume & Fragrance",
         "Pets",
+        "Plants & Garden",
+        "Purse, Wallet, Keychain",
+        "Shoes",
         "Sports & Outdoors",
-        "Toys & Games"
+        "Toys & Games",
+        "Under Garments"
     };
 }

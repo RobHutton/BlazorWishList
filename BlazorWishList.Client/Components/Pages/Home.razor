@@ -1,0 +1,133 @@
+﻿@rendermode InteractiveServer
+@page "/"
+@page "/Home"
+
+@attribute [Authorize]
+<PageTitle>Wish List</PageTitle>
+
+<MudOverlay Visible="IsLoading" DarkBackground="true" Absolute="true">
+    <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7" />
+</MudOverlay>
+<MudCard Elevation="8" Class="green-panel">
+    <MudCardContent Class="p-4">
+        @{
+            if (!string.IsNullOrEmpty(UserName))
+            {
+                <MudStack class="my-4" Spacing="2" Row="true" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h5" Class="user-greeting">Hello, @(UserName).</MudText>
+                    <MudIcon Color="Color.Secondary" Icon="@Icons.Material.Filled.Favorite" />
+                </MudStack>
+            }
+        }
+        <MudAlert Variant="Variant.Filled" Icon="@Icons.Material.Filled.Info" Severity="Severity.Normal" Class="page-instructions mb-4">
+            <p class="p-0 mb-1" style="font-weight: 600; font-size: 1.25rem;">
+                Welcome to the Family Wish List!
+            </p>
+            <ul class="p-0 mb-0" style="margin-left: 1rem; list-style-type: disc;">
+                <li>Expand any user’s panel to view items, click the links to purchase, and mark items as purchased.</li>
+                <li>Manage your own list by adding, updating, or removing items.</li>
+            </ul>
+        </MudAlert>
+        <MudExpansionPanels Elevation="4">
+            @foreach(UserWishListCount user in WishListClientService.WishListUsers)
+            {
+                <MudExpansionPanel Class="" 
+                    Expanded="@((ExpandedUserId == user.Id))"
+                    ExpandedChanged="@(expanded => OnExpandedChanged(expanded, user.Id))">
+                    <TitleContent>
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                            <MudAvatar>
+                                <MudImage Src="@user.Photo" Alt="@user.UserName" />
+                            </MudAvatar>
+                            <MudText>
+                                @user.UserName
+                            </MudText>
+                            <MudAvatar Size="Size.Small" Color="@(user.ActiveWishListItemCount > 0 ? Color.Secondary : Color.Default)">@user.ActiveWishListItemCount</MudAvatar>
+                        </MudStack>
+                    </TitleContent>
+                    <ChildContent>
+                        @if (ExpandedUserId == user.Id)
+                        {
+                            <BlazorWishList.Client.Components.Shared.WishListItems WisherId="@user.Id" />
+                        }
+                    </ChildContent>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudCardContent>
+</MudCard>
+
+@* <BlazorWishList.Client.Components.Shared.WishListItems WisherId="8b1c41c8-7487-4965-94aa-c0458db86f1d" IsPurchased="false" /> *@
+@*     <MudOverlay Visible="false" DarkBackground="true" Absolute="true">
+        <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+    </MudOverlay>
+    <MudTabs ApplyEffectsToContainer="true" Rounded="true" Class="w-100" Centered="true" Color="Color.Primary">
+        @foreach(var user in WishListClientService.WishListUsers)
+        {
+            <MudTabPanel Class="p-2 pr-8 mr-4" Icon="@Icons.Material.Filled.Api" Text="@user.UserDisplay" BadgeData='@user.ActiveWishListItemCount.ToString()' BadgeColor="Color.Secondary">
+                <ChildContent>
+                    <MudImage Width="100" Height="100" Src="@user.Photo" Alt="@user.UserName" Elevation="25" Class="rounded-sm" />
+                    <BlazorWishList.Client.Components.Shared.WishListItems WisherId="@user.Id" IsPurchased="false" />
+                </ChildContent>
+            </MudTabPanel>
+        }
+    </MudTabs> *@
+
+<style>
+    .mud-typography-body1 {
+        font-size:18px !important;
+    }
+    .mud-tab {
+        text-transform: none !important;
+        border-right: 2px solid rgb(150, 140, 230) !important;
+        border-top: 2px solid rgb(150, 140, 230) !important;
+        border-bottom: 2px solid rgb(150, 140, 230) !important;
+    }
+    .mud-tab:hover {
+        background-color: rgb(98, 88, 211) !important;
+    }
+    .mud-tab-active {
+        background-color: rgb(118, 106, 231) !important;
+    }
+
+    .mud-tabs-panels {
+        flex: 1 1 auto;
+        overflow: auto;
+        padding: 20px;
+        background-color: white;
+    }
+
+    .mud-tabs {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: auto;
+    }
+
+    /* Ensure MudTabs and its container fills space */
+    .mud-tabs-custom {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        overflow: auto;
+    }
+
+    /* Panels container takes remaining height */
+    .mud-tabs-panels {
+        flex: 1 1 auto;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        margin:12px;
+        margin-top:8px;
+    }
+
+    /* Scrollable content area inside each panel */
+    .tab-content-scrollable {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        padding: 20px;
+        background-color: white;
+    }
+
+</style>
