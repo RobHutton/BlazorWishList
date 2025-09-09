@@ -26,6 +26,13 @@
                            Color="@activeColor" />
                 <label style="font-size:14px;background-color:transparent !important;">@activeText</label>
             </div>
+            <MudButton OnClick="() => OnAdd()"
+                       Class="ml-8"
+                       Variant="Variant.Filled"
+                       StartIcon="@Icons.Material.Filled.AddCircle"
+                       Color="Color.Success">
+                Add New
+            </MudButton>
         }
         else
         {
@@ -38,13 +45,6 @@
                 <label style="font-size:14px;background-color:transparent !important;">@purchasedText</label>
             </div>
         }
-        <MudButton OnClick="() => OnAdd()"
-                   Class="ml-8"
-                   Variant="Variant.Filled"
-                   StartIcon="@Icons.Material.Filled.AddCircle"
-                   Color="Color.Success">
-            Add New
-        </MudButton>
         <MudSpacer/>
         <MudTextField T="string"
                         ValueChanged="@(s=>OnSearch(s))"

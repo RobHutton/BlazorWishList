@@ -73,58 +73,79 @@
                     <!-- First row of dropdowns: Category + Price Range -->
                     <MudGrid Spacing="2">
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" @bind-Value="MyWish.Category"
-                                       Required="true"
-                                       ShrinkLabel="true"
-                                       Variant="Variant.Outlined"
-                                       Label="Category">
-                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
-                                @foreach (var option in Options.WishlistCategories)
-                                {
-                                    <MudSelectItem Value="@option">@option</MudSelectItem>
-                                }
-                            </MudSelect>
+                            <MudAutocomplete T="string"
+                                             @ref="_categoryAutocomplete"
+                                             @bind-Value="MyWish.Category"
+                                             Label="Category"
+                                             Variant="Variant.Outlined"
+                                             Dense="true"
+                                             Clearable="true"
+                                             CoerceText="true"
+                                             CoerceValue="true"
+                                             SearchFunc="@(async (s, ct) =>
+                                            {
+                                                return await Task.FromResult(
+                                                    Options.WishlistCategories.Where(o => string.IsNullOrEmpty(s) || o.Contains(s, StringComparison.OrdinalIgnoreCase))
+                                                );
+                                            })" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" @bind-Value="MyWish.PriceRange"
-                                       Required="true"
-                                       ShrinkLabel="true"
-                                       Variant="Variant.Outlined"
-                                       Label="Price Range">
-                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
-                                @foreach (var option in Options.PriceRanges)
-                                {
-                                    <MudSelectItem Value="@option.Description">@option.Description</MudSelectItem>
-                                }
-                            </MudSelect>
+                            <MudAutocomplete T="string"
+                                            @ref="_priceRangeAutocomplete"
+                                            @bind-Value="MyWish.PriceRange"
+                                            Label="Price Range"
+                                            Variant="Variant.Outlined"
+                                            Dense="true"
+                                            Clearable="true"
+                                            CoerceText="true"
+                                            CoerceValue="true"
+                                            SearchFunc="@(async (s, ct) =>
+                                            {
+                                                return await Task.FromResult(
+                                                    Options.PriceRanges
+                                                    .Select(p => p.Description)
+                                                    .Where(d => string.IsNullOrEmpty(s) || d.Contains(s, StringComparison.OrdinalIgnoreCase))
+                                                );
+                                            })" />
                         </MudItem>
                     </MudGrid>
 
                     <!-- Second row of dropdowns: Size + Color -->
                     <MudGrid Spacing="2">
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" @bind-Value="MyWish.Size"
-                                       ShrinkLabel="true"
-                                       Variant="Variant.Outlined"
-                                       Label="Size">
-                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
-                                @foreach (var option in Options.Sizes)
-                                {
-                                    <MudSelectItem Value="@option">@option</MudSelectItem>
-                                }
-                            </MudSelect>
+                            <MudAutocomplete T="string"
+                                    @ref="_sizeAutocomplete"
+                                    @bind-Value="MyWish.Size"
+                                    Label="Size"
+                                    Variant="Variant.Outlined"
+                                    Dense="true"
+                                    Clearable="true"
+                                    CoerceText="true"
+                                    CoerceValue="true"
+                                    SearchFunc="@(async (s, ct) =>
+                                    {
+                                        return await Task.FromResult(
+                                            Options.Sizes.Where(o => string.IsNullOrEmpty(s) || o.Contains(s, StringComparison.OrdinalIgnoreCase))
+                                        );
+                                    })" />
                         </MudItem>
+
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" @bind-Value="MyWish.Color"
-                                       ShrinkLabel="true"
-                                       Variant="Variant.Outlined"
-                                       Label="Color">
-                                <MudSelectItem Value="@string.Empty"></MudSelectItem>
-                                @foreach (var option in Options.Colors)
-                                {
-                                    <MudSelectItem Value="@option">@option</MudSelectItem>
-                                }
-                            </MudSelect>
+                            <MudAutocomplete T="string"
+                                    @ref="_colorAutocomplete"
+                                    @bind-Value="MyWish.Color"
+                                    Label="Color"
+                                    Variant="Variant.Outlined"
+                                    Dense="true"
+                                    Clearable="true"
+                                    CoerceText="true"
+                                    CoerceValue="true"
+                                    SearchFunc="@(async (s, ct) =>
+                                    {
+                                        return await Task.FromResult(
+                                            Options.Colors.Where(o => string.IsNullOrEmpty(s) || o.Contains(s, StringComparison.OrdinalIgnoreCase))
+                                        );
+                                    })" />
                         </MudItem>
                     </MudGrid>
                 </MudStack>
@@ -146,3 +167,9 @@
             </MudItem>
         </MudCardContent>
     </MudCard>
+@code {
+    private MudAutocomplete<string> _sizeAutocomplete = default!;
+    private MudAutocomplete<string> _colorAutocomplete = default!;
+    private MudAutocomplete<string> _categoryAutocomplete = default!;
+    private MudAutocomplete<string> _priceRangeAutocomplete = default!;
+}

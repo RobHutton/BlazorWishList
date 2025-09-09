@@ -1,6 +1,10 @@
 /* Primary: 1e6347
 // Secondary: #e91e63
-// Tertiary: rgb(30, 200, 165)*/
+// Tertiary: rgb(30, 200, 165)
+// Medium Pink: rgb(249, 196, 210)
+// Light Pink: #f9c4d2 !important
+// Pale Pink: #fff0f5
+*/
 
 html, body {
     background-color: #1F5E3A;
@@ -1334,4 +1338,14 @@ html, body {
     width: 100%;
     max-width: 1000px; /* optional for nicer layout */
     margin: auto;
+}
+/* Form Field Background Color */
+/* Target the MudBlazor input root when focused */
+.mud-input-root:focus {
+    background-color: #fff0f5 !important;
+}
+
+/* If the input is inside an outlined container */
+.mud-input-root-outlined:focus {
+    background-color: #fff0f5 !important;
 }

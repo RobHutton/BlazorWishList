@@ -158,6 +158,7 @@ public partial class Wish
             OriginalWish = JsonHelper.Clone(MyWish);
             Snackbar.Add($"Successfully {action} Wish List item.", Severity.Success);
             IsSaved = true;
+            Back();
             return true;
         }
         else
